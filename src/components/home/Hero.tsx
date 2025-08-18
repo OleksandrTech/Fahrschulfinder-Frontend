@@ -1,4 +1,5 @@
 import CTAButton from "./CTAButton";
+import RegistrationButton from "./RegistrationButton";
 
 export default function Hero() {
   return (
@@ -14,6 +15,7 @@ export default function Hero() {
       </p>
 
       <CTAButton />
+      <RegistrationButton />
     </div>
   );
 }
