@@ -8,8 +8,10 @@ import { updateSchoolPrices } from '@/app/actions/schoolActions';
 type SchoolData = {
     id: number;
     name: string;
-    theory_price: number;
     driving_price: number;
+    grundgebuehr: number;
+    theorypruefung: number;
+    praxispruefung: number;
 };
 
 export default function ProfileClient({ school }: { school: SchoolData }) {
@@ -38,19 +40,7 @@ export default function ProfileClient({ school }: { school: SchoolData }) {
 
             {/* The form calls the server action directly */}
             <form action={handleSubmit} className="space-y-4">
-                <h3 className="text-xl font-semibold border-b pb-2 pt-4 text-gray-700">Update Lesson Prices</h3>
-                <div>
-                    <label htmlFor="theoryPrice" className="block text-sm font-medium text-gray-700">Theory Lesson Price (€)</label>
-                    <input
-                        id="theoryPrice"
-                        name="theoryPrice"
-                        type="number"
-                        defaultValue={school.theory_price} // Use defaultValue for initial value
-                        className="mt-1 w-full p-3 border rounded"
-                        required
-                        min="0"
-                    />
-                </div>
+                <h3 className="text-xl font-semibold border-b pb-2 pt-4 text-gray-700">Update Infos</h3>
                 <div>
                     <label htmlFor="drivingPrice" className="block text-sm font-medium text-gray-700">Driving Lesson Price (€)</label>
                     <input
@@ -58,6 +48,42 @@ export default function ProfileClient({ school }: { school: SchoolData }) {
                         name="drivingPrice"
                         type="number"
                         defaultValue={school.driving_price} // Use defaultValue for initial value
+                        className="mt-1 w-full p-3 border rounded"
+                        required
+                        min="0"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="grundgebuehr" className="block text-sm font-medium text-gray-700">Grundgebühr Price (€)</label>
+                    <input
+                        id="grundgebuehr"
+                        name="grundgebuehr"
+                        type="number"
+                        defaultValue={school.grundgebuehr} // Use defaultValue for initial value
+                        className="mt-1 w-full p-3 border rounded"
+                        required
+                        min="0"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="praxispruefung" className="block text-sm font-medium text-gray-700">PraxisPrüfung Price (€)</label>
+                    <input
+                        id="praxispruefung"
+                        name="praxispruefung"
+                        type="number"
+                        defaultValue={school.praxispruefung} // Use defaultValue for initial value
+                        className="mt-1 w-full p-3 border rounded"
+                        required
+                        min="0"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="theorypruefung" className="block text-sm font-medium text-gray-700">TheoryPrüfung Price (€)</label>
+                    <input
+                        id="theorypruefung"
+                        name="theorypruefung"
+                        type="number"
+                        defaultValue={school.theorypruefung} // Use defaultValue for initial value
                         className="mt-1 w-full p-3 border rounded"
                         required
                         min="0"

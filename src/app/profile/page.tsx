@@ -17,7 +17,7 @@ export default async function ProfilePage() {
     // 3. Fetch the school data linked to this user
     const { data: school, error } = await supabase
         .from('driving_school')
-        .select('id, name, theory_price, driving_price')
+        .select('id, name, driving_price, grundgebuehr, praxispruefung, theorypruefung')
         .eq('admin_id', user.id)
         .single(); // .single() expects only one row to be returned
 

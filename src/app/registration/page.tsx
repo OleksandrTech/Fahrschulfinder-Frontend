@@ -17,9 +17,13 @@ export default function Register() {
         schoolName: '',
         address: '',
         city: '',
-        plz: '', // Postal Code
-        theoryPrice: '',
-        drivingPrice: '', // You need to add this column to your table
+        plz: '', 
+        // add to supabase table
+        grundgebuehr: '',
+        theorypruefung: '',
+        praxisprufueng: '',
+        // add to supabase table
+        drivingPrice: '', 
     });
 
     const [error, setError] = useState<string | null>(null);
@@ -73,8 +77,10 @@ export default function Register() {
                 address: formData.address,
                 city: formData.city,
                 PLZ: formData.plz,
-                theory_price: Number(formData.theoryPrice),
                 driving_price: Number(formData.drivingPrice),
+                grundgebuehr: Number(formData.grundgebuehr),
+                theorypruefung: Number(formData.theorypruefung),
+                praxisprufueng: Number(formData.praxisprufueng),
                 admin_id: admin.id, // This is the foreign key link!
             });
 
@@ -109,8 +115,10 @@ export default function Register() {
                         <input name="plz" type="text" placeholder="Postal Code (PLZ)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400 text-gray-900" required />
                     </div>
                     <div className="flex gap-4">
-                        <input name="theoryPrice" type="number" placeholder="Theory Lesson Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400 text-gray-900" required min="0" />
-                        <input name="drivingPrice" type="number" placeholder="Driving Lesson Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
+                        <input name="grundgebuehr" type="number" placeholder="Grundgebühr Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
+                        <input name="theorypruefung" type="number" placeholder="TheoryPrüfung Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
+                        <input name="praxisprufueng" type="number" placeholder="PraxisPrüfung Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
+                        <input name="drivingPrice" type="number" placeholder="Fahrstunde Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
                     </div>
 
                     {error && <p className="text-red-600 bg-red-100 p-3 rounded text-center">{error}</p>}
