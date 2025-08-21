@@ -1,13 +1,14 @@
-// src/components/layout/Header.tsx
 import Link from "next/link";
 import { Calculator } from "lucide-react";
 import { createClient } from "@/utils/supabase/server";
 import UserNav from "./UserNav";
 
-// The Header component is now an async function
 export default async function Header() {
-  const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // Add await here
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <header className="bg-white shadow-sm">

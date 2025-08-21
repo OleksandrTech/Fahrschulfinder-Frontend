@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import ProfileClient from '@/app/profile/ProfileClient';
 
 export default async function ProfilePage() {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // 1. Get the current user
     const { data: { user } } = await supabase.auth.getUser();

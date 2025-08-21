@@ -54,10 +54,10 @@ export default function ProfileClient({ school }: { school: SchoolData }) {
                     />
                 </div>
                 <div>
-                    <label htmlFor="grundgebuehr" className="block text-sm font-medium text-gray-700">Grundgebühr Price (€)</label>
+                    <label htmlFor="grundGebuehr" className="block text-sm font-medium text-gray-700">Grundgebühr Price (€)</label>
                     <input
-                        id="grundgebuehr"
-                        name="grundgebuehr"
+                        id="grundGebuehr"
+                        name="grundGebuehr"
                         type="number"
                         defaultValue={school.grundgebuehr} // Use defaultValue for initial value
                         className="mt-1 w-full p-3 border rounded"
@@ -66,10 +66,10 @@ export default function ProfileClient({ school }: { school: SchoolData }) {
                     />
                 </div>
                 <div>
-                    <label htmlFor="praxispruefung" className="block text-sm font-medium text-gray-700">PraxisPrüfung Price (€)</label>
+                    <label htmlFor="praxisPruefung" className="block text-sm font-medium text-gray-700">PraxisPrüfung Price (€)</label>
                     <input
-                        id="praxispruefung"
-                        name="praxispruefung"
+                        id="praxisPruefung"
+                        name="praxisPruefung"
                         type="number"
                         defaultValue={school.praxispruefung} // Use defaultValue for initial value
                         className="mt-1 w-full p-3 border rounded"
@@ -78,10 +78,10 @@ export default function ProfileClient({ school }: { school: SchoolData }) {
                     />
                 </div>
                 <div>
-                    <label htmlFor="theorypruefung" className="block text-sm font-medium text-gray-700">TheoryPrüfung Price (€)</label>
+                    <label htmlFor="theoryPruefung" className="block text-sm font-medium text-gray-700">TheoryPrüfung Price (€)</label>
                     <input
-                        id="theorypruefung"
-                        name="theorypruefung"
+                        id="theoryPruefung"
+                        name="theoryPruefung"
                         type="number"
                         defaultValue={school.theorypruefung} // Use defaultValue for initial value
                         className="mt-1 w-full p-3 border rounded"

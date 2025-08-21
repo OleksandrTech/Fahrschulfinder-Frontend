@@ -19,9 +19,9 @@ export default function Register() {
         city: '',
         plz: '', 
         // add to supabase table
-        grundgebuehr: '',
-        theorypruefung: '',
-        praxisprufueng: '',
+        grundGebuehr: '',
+        theoryPruefung: '',
+        praxisPruefung: '',
         // add to supabase table
         drivingPrice: '', 
     });
@@ -78,9 +78,9 @@ export default function Register() {
                 city: formData.city,
                 PLZ: formData.plz,
                 driving_price: Number(formData.drivingPrice),
-                grundgebuehr: Number(formData.grundgebuehr),
-                theorypruefung: Number(formData.theorypruefung),
-                praxisprufueng: Number(formData.praxisprufueng),
+                grundgebuehr: Number(formData.grundGebuehr),
+                theorypruefung: Number(formData.theoryPruefung),
+                praxispruefung: Number(formData.praxisPruefung),
                 admin_id: admin.id, // This is the foreign key link!
             });
 
@@ -115,9 +115,9 @@ export default function Register() {
                         <input name="plz" type="text" placeholder="Postal Code (PLZ)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400 text-gray-900" required />
                     </div>
                     <div className="flex gap-4">
-                        <input name="grundgebuehr" type="number" placeholder="Grundgebühr Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
-                        <input name="theorypruefung" type="number" placeholder="TheoryPrüfung Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
-                        <input name="praxisprufueng" type="number" placeholder="PraxisPrüfung Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
+                        <input name="grundGebuehr" type="number" placeholder="Grundgebühr Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
+                        <input name="theoryPruefung" type="number" placeholder="TheoryPrüfung Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
+                        <input name="praxisPruefung" type="number" placeholder="PraxisPrüfung Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
                         <input name="drivingPrice" type="number" placeholder="Fahrstunde Price (€)" onChange={handleChange} className="w-full p-3 border rounded placeholder:text-gray-400  text-gray-900" required min="0" />
                     </div>
 

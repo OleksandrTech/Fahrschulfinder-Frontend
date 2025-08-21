@@ -44,7 +44,7 @@ export default function CityFilter({ cities, onCitySelect }: CityFilterProps) {
                 value={inputValue}
                 onChange={handleInputChange}
                 placeholder="e.g., Solingen"
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 text-black"
             />
 
             {suggestions.length > 0 && (
@@ -53,7 +53,7 @@ export default function CityFilter({ cities, onCitySelect }: CityFilterProps) {
                         <li
                             key={index}
                             onClick={() => handleSuggestionClick(city)}
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100"
+                            className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-black"
                         >
                             {city}
                         </li>
