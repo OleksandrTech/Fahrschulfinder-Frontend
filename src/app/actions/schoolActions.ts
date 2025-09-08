@@ -28,7 +28,7 @@ export async function getSchoolsByCity(city: string) {
     const { data, error } = await supabase
         .from("driving_school")
         .select(
-            "name, address, driving_price, grundgebuehr, theorypruefung, praxispruefung"
+            "id, name, address, driving_price, grundgebuehr, theorypruefung, praxispruefung"
         )
         .eq("city", city)
         .eq("is_published", true);
@@ -39,6 +39,25 @@ export async function getSchoolsByCity(city: string) {
     }
     return data || [];
 }
+
+// New function to fetch a single school by its ID
+export async function getSchoolById(id: string) {
+    const supabase = await createClient();
+    const { data, error } = await supabase
+        .from('driving_school')
+        .select('*') // Select all columns for the profile page
+        .eq('id', id)
+        .eq("is_published", true)
+        .single(); // .single() ensures only one row is returned
+
+    if (error) {
+        console.error(`Error fetching school with id ${id}:`, error);
+        return null; // Return null if there's an error or no school is found
+    }
+
+    return data;
+}
+
 
 export async function updateSchoolPrices(formData: FormData) {
     const supabase = await createClient();

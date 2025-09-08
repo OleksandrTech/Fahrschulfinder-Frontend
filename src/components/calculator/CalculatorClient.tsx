@@ -9,8 +9,10 @@ import { getSchoolsByCity } from "@/app/actions/schoolActions";
 import { ExperienceLevel } from "@/lib/priceCalculator";
 
 type School = {
+    id: string;
     name: string;
     address: string;
+    PLZ: string;
     grundgebuehr: number;
     driving_price: number;
     theorypruefung: number;
@@ -30,7 +32,7 @@ export default function CalculatorClient({ cities }: { cities: string[] }) {
         setIsLoading(true);
         setSearched(true);
         const result = await getSchoolsByCity(selectedCity);
-        setSchools(result);
+        setSchools(result as School[]);
         setIsLoading(false);
     };
 

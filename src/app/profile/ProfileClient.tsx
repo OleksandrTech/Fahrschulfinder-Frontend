@@ -6,7 +6,7 @@ import { updateSchoolPrices } from '@/app/actions/schoolActions';
 
 // Define the type for the school data that this component receives
 type SchoolData = {
-    id: number;
+    id: string;
     name: string;
     driving_price: number;
     grundgebuehr: number;

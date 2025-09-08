@@ -1,4 +1,5 @@
 // src/components/calculator/SchoolList.tsx
+import Link from 'next/link'; // Import the Link component
 import {
     calculatePrice,
     ExperienceLevel,
@@ -6,6 +7,7 @@ import {
 } from "@/lib/priceCalculator";
 
 interface School {
+    id: string;
     name: string;
     address: string;
     grundgebuehr: number;
@@ -48,25 +50,27 @@ export default function SchoolList({
                 Level
             </h2>
             <ul className="space-y-3">
-                {schools.map((school, index) => {
+                {schools.map((school) => {
                     const totalPrice = calculatePrice(school, selectedLevel);
 
                     return (
-                        <li
-                            key={index}
-                            className="p-4 bg-gray-50 rounded-lg border border-gray-200 flex justify-between items-center"
-                        >
-                            <div>
-                                <p className="font-semibold text-gray-900">{school.name}</p>
-                                <p className="text-sm text-gray-500">{school.address}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-xl font-bold text-gray-900">
-                                    {formatPrice(totalPrice)}
-                                </p>
-                                <p className="text-xs text-gray-500">Total estimated cost</p>
-                            </div>
-                        </li>
+                        // Wrap list item in a Link component
+                        <Link href={`/school/${school.id}`} key={school.id}>
+                            <li
+                                className="p-4 bg-gray-50 rounded-lg border border-gray-200 flex justify-between items-center transition-all hover:shadow-md hover:border-blue-300 cursor-pointer"
+                            >
+                                <div>
+                                    <p className="font-semibold text-gray-900">{school.name}</p>
+                                    <p className="text-sm text-gray-500">{school.address}</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-xl font-bold text-gray-900">
+                                        {formatPrice(totalPrice)}
+                                    </p>
+                                    <p className="text-xs text-gray-500">Total estimated cost</p>
+                                </div>
+                            </li>
+                        </Link>
                     );
                 })}
             </ul>
