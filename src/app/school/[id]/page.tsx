@@ -5,17 +5,18 @@ import SchoolProfileDisplay from "@/components/school/SchoolProfileDisplay";
 import { getSchoolById } from "@/app/actions/schoolActions";
 import { notFound } from "next/navigation";
 
-// Define props type, Next.js passes params with dynamic segments
+// 1. WICHTIG: params muss jetzt ein Promise sein!
 interface SchoolProfilePageProps {
-    params: {
+    params: Promise<{
         id: string;
-    };
+    }>;
 }
 
 export default async function SchoolProfilePage({ params }: SchoolProfilePageProps) {
-    const schoolId = params.id;
+    // 2. WICHTIG: Wir müssen auf die params warten (await)
+    const { id } = await params; 
+    const schoolId = id;
 
-    // --- Update Safeguard ---
     // Validate for a UUID format instead of just digits.
     const uuidRegex = /^[a-f\d]{8}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{4}-[a-f\d]{12}$/i;
 
@@ -23,7 +24,6 @@ export default async function SchoolProfilePage({ params }: SchoolProfilePagePro
         console.error("Invalid school ID format received:", schoolId);
         notFound();
     }
-    // --- End Safeguard ---
     
     const school = await getSchoolById(schoolId);
 
