@@ -5,7 +5,7 @@ import { useState } from 'react';
 
 interface CityFilterProps {
     cities: string[];
-    onCitySelect: (city: string | null) => void; // Callback function to pass the selected city up
+    onCitySelect: (city: string | null) => void; 
 }
 
 export default function CityFilter({ cities, onCitySelect }: CityFilterProps) {
@@ -15,7 +15,7 @@ export default function CityFilter({ cities, onCitySelect }: CityFilterProps) {
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
         setInputValue(value);
-        onCitySelect(null); // Clear selection in parent when user types
+        onCitySelect(null);
 
         if (value.length > 0) {
             const filteredSuggestions = cities.filter(city =>
@@ -29,31 +29,29 @@ export default function CityFilter({ cities, onCitySelect }: CityFilterProps) {
 
     const handleSuggestionClick = (city: string) => {
         setInputValue(city);
-        onCitySelect(city); // Send the selected city to the parent component
+        onCitySelect(city);
         setSuggestions([]);
     };
 
     return (
-        <div className="relative w-full max-w-xs">
-            <label htmlFor="city-input" className="block text-sm font-medium text-gray-700 mb-1">
-                Choose your city
-            </label>
+        <div className="relative w-full">
             <input
                 id="city-input"
                 type="text"
                 value={inputValue}
                 onChange={handleInputChange}
-                placeholder="e.g., Solingen"
-                className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 placeholder:text-gray-400 text-black"
+                placeholder="z.B. Solingen"
+                className="w-full bg-transparent text-gray-900 font-semibold placeholder:text-gray-400 focus:outline-none py-1 px-2"
+                autoComplete="off"
             />
 
             {suggestions.length > 0 && (
-                <ul className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                <ul className="absolute z-50 w-full mt-2 bg-white border border-gray-200 rounded-xl shadow-xl max-h-60 overflow-y-auto left-0">
                     {suggestions.map((city, index) => (
                         <li
                             key={index}
                             onClick={() => handleSuggestionClick(city)}
-                            className="px-4 py-2 cursor-pointer hover:bg-gray-100 text-black"
+                            className="px-4 py-3 cursor-pointer hover:bg-blue-50 text-gray-700 font-medium transition-colors border-b border-gray-50 last:border-0"
                         >
                             {city}
                         </li>
