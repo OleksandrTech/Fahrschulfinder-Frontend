@@ -8,6 +8,7 @@ import { getSchoolsByCity } from "@/app/actions/schoolActions";
 import { ExperienceLevel, experienceLevels } from "@/lib/priceCalculator";
 import { Search, Settings, ChevronDown, ChevronUp, Info } from "lucide-react";
 
+// WICHTIG: Hier wurde "is_premium" hinzugefügt, damit es zur SchoolList passt
 type School = {
     id: string;
     name: string;
@@ -17,6 +18,7 @@ type School = {
     driving_price: number;
     theorypruefung: number;
     praxispruefung: number;
+    is_premium: boolean; // <--- Das fehlte und hat den Fehler verursacht
 };
 
 export default function CalculatorClient({ cities }: { cities: string[] }) {
@@ -31,12 +33,15 @@ export default function CalculatorClient({ cities }: { cities: string[] }) {
         if (!selectedCity) return;
         setIsLoading(true);
         setSearched(true);
+        
+        // Die Action gibt jetzt auch is_premium zurück (siehe Schritt 1)
         const result = await getSchoolsByCity(selectedCity);
+        
+        // Wir casten das Ergebnis auf unseren aktualisierten School Typ
         setSchools(result as School[]);
         setIsLoading(false);
     };
 
-    // Mapping für deutsche Labels im Dropdown
     const levelLabels: Record<ExperienceLevel, string> = {
         beginner: "Anfänger (Keine Erfahrung)",
         someExperience: "Etwas Erfahrung",
@@ -53,7 +58,7 @@ export default function CalculatorClient({ cities }: { cities: string[] }) {
                 <p className="text-gray-500">Vergleiche Preise in deiner Stadt – schnell & transparent.</p>
             </div>
 
-            {/* --- BOOKING.COM STYLE SEARCH BAR --- */}
+            {/* --- SEARCH BAR --- */}
             <div className="bg-white p-2 md:p-3 rounded-xl shadow-xl border border-gray-200 relative z-10">
                 <div className="flex flex-col md:flex-row gap-2">
                     

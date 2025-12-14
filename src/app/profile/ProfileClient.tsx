@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { updateSchoolPrices, updateSchoolSettings } from '@/app/actions/schoolActions';
 import { 
     LayoutDashboard, 
@@ -9,15 +10,22 @@ import {
     Settings, 
     LogOut, 
     MapPin, 
-    Trophy,
-    TrendingUp,
-    Building2,
-    Save,
-    Phone,
-    Mail,
-    Globe,
-    Home,
-    CheckCircle2
+    Trophy, 
+    TrendingUp, 
+    Building2, 
+    Save, 
+    Phone, 
+    Mail, 
+    Globe, 
+    Home, 
+    CheckCircle2,
+    Lock,           // Neu
+    Eye,            // Neu
+    MousePointer,   // Neu
+    UserCheck,      // Neu
+    Lightbulb,      // Neu
+    Info,           // Neu
+    ExternalLink    // Neu
 } from 'lucide-react';
 import { logout } from "@/app/auth/actions/authActions";
 
@@ -26,11 +34,10 @@ type SchoolData = {
     id: string;
     name: string;
     city: string;
-    // Neue Felder für Kontaktdaten
     address?: string;
     PLZ?: string;
     phone_number?: string;
-    email?: string; // Öffentliche Kontakt-Email
+    email?: string; 
     website?: string;
     driving_price: number;
     grundgebuehr: number;
@@ -48,6 +55,7 @@ type StatsData = {
 
 // --- Hauptkomponente ---
 export default function ProfileClient({ school, stats }: { school: SchoolData, stats: StatsData }) {
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<'dashboard' | 'prices' | 'settings'>('dashboard');
     
     // States für Feedback-Nachrichten
@@ -127,6 +135,12 @@ export default function ProfileClient({ school, stats }: { school: SchoolData, s
                             onClick={() => setActiveTab('settings')} 
                         />
                     </div>
+                    {/* Zur Website Button */}
+                    <div className="pt-2">
+                        <button onClick={() => router.push('/')} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">
+                            <ExternalLink size={20} /><span>Zur Website</span>
+                        </button>
+                    </div>
                 </nav>
 
                 <div className="p-4 border-t border-slate-800">
@@ -170,9 +184,21 @@ export default function ProfileClient({ school, stats }: { school: SchoolData, s
                                 <div className="text-right">
                                     <span className="text-sm text-gray-500">Status</span>
                                     <div className="flex items-center gap-2 mt-1">
-                                        <span className={`w-2 h-2 rounded-full ${school.is_premium ? 'bg-green-500' : 'bg-gray-300'}`}></span>
-                                        <span className="font-medium text-gray-700">{school.is_premium ? 'Premium Aktiv' : 'Standard'}</span>
+                                        <span className={`w-2.5 h-2.5 rounded-full ${school.is_premium ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-gray-300'}`}></span>
+                                        <span className={`font-bold ${school.is_premium ? 'text-green-700' : 'text-gray-600'}`}>{school.is_premium ? 'Premium Aktiv' : 'Standard'}</span>
                                     </div>
+                                </div>
+                            </div>
+
+                            {/* --- NEU: HINWEIS BOX --- */}
+                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-start gap-3">
+                                <Info className="text-blue-600 shrink-0 mt-0.5" size={20} />
+                                <div>
+                                    <h4 className="font-semibold text-blue-900 text-sm">Sichtbarkeit deiner Kontaktdaten</h4>
+                                    <p className="text-blue-700/80 text-sm mt-1">
+                                        Im öffentlichen Vergleich werden <strong>keine Kontaktdaten</strong> angezeigt (außer bei Premium). 
+                                        Schüler sehen diese erst auf deinem Detail-Profil.
+                                    </p>
                                 </div>
                             </div>
 
@@ -208,7 +234,9 @@ export default function ProfileClient({ school, stats }: { school: SchoolData, s
                             {/* Info Box & Premium Box */}
                             <div className="grid lg:grid-cols-3 gap-8">
                                 <div className="lg:col-span-2 bg-white p-8 rounded-xl shadow-sm border border-gray-100 flex flex-col justify-center">
-                                    <h3 className="text-lg font-bold text-gray-900 mb-4">💡 Dein Optimierungs-Tipp</h3>
+                                    <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                                        <Lightbulb size={20} className="text-yellow-500"/> Dein Optimierungs-Tipp
+                                    </h3>
                                     {priceDiff > 5 ? (
                                         <p className="text-gray-600">
                                             Dein Fahrstundenpreis liegt <strong>{priceDiff}€ über dem Durchschnitt</strong> in {school.city}. 
@@ -251,6 +279,36 @@ export default function ProfileClient({ school, stats }: { school: SchoolData, s
                                             <p className="text-green-600 mt-2 text-sm">Dein Profil wird bevorzugt.</p>
                                         </div>
                                     )}
+                                </div>
+                            </div>
+
+                            {/* --- NEU: BESUCHER STATISTIK (LOCKED für Standard) --- */}
+                            <div className="mt-8 pt-8 border-t border-gray-200">
+                                <h3 className="text-lg font-bold text-gray-900 mb-6 flex items-center gap-2">
+                                    <TrendingUp size={20} className="text-blue-600"/> 
+                                    Performance & Besucher (30 Tage)
+                                </h3>
+                                
+                                <div className="relative">
+                                    {!school.is_premium && (
+                                        <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center rounded-2xl border border-dashed border-gray-300">
+                                            <div className="bg-white p-6 rounded-2xl shadow-xl text-center max-w-md border border-gray-100">
+                                                <div className="w-12 h-12 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-3">
+                                                    <Lock size={24} />
+                                                </div>
+                                                <h3 className="text-lg font-bold text-gray-900 mb-2">Besucherzahlen sehen</h3>
+                                                <p className="text-gray-500 text-sm mb-4">
+                                                    Werde Premium-Partner, um zu sehen, wie viele Schüler dich suchen.
+                                                </p>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className={`grid grid-cols-1 md:grid-cols-3 gap-6 ${!school.is_premium ? 'filter blur-sm select-none opacity-50' : ''}`}>
+                                        <StatCard title="Profilaufrufe" value="1,204" subValue="+12% zum Vormonat" icon={<Eye className="text-blue-500" />} />
+                                        <StatCard title="Webseiten-Klicks" value="342" subValue="Durch Premium-Link" icon={<MousePointer className="text-green-500" />} />
+                                        <StatCard title="Kontaktanfragen" value="48" subValue="Anrufe & Mails" icon={<UserCheck className="text-purple-500" />} />
+                                    </div>
                                 </div>
                             </div>
                         </>
@@ -335,14 +393,26 @@ export default function ProfileClient({ school, stats }: { school: SchoolData, s
                                                 icon={<Mail size={16} className="text-gray-400" />}
                                             />
 
-                                            <InputGroup 
-                                                label="Webseite" 
-                                                name="website" 
-                                                value={school.website} 
-                                                placeholder="www.meine-fahrschule.de" 
-                                                type="text" // WICHTIG: text statt url, um Validierungsfehler zu vermeiden
-                                                icon={<Globe size={16} className="text-gray-400" />}
-                                            />
+                                            {/* --- NEU: WEBSITE LOCKED --- */}
+                                            <div className="relative">
+                                                <InputGroup 
+                                                    label="Webseite" 
+                                                    name="website" 
+                                                    value={school.website} 
+                                                    placeholder="www.meine-fahrschule.de" 
+                                                    type="text"
+                                                    icon={<Globe size={16} className="text-gray-400" />}
+                                                    disabled={!school.is_premium}
+                                                />
+                                                {!school.is_premium && (
+                                                    <div className="absolute right-2 top-8 pointer-events-none">
+                                                        <span className="flex items-center text-xs font-bold text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200 shadow-sm">
+                                                            <Lock size={12} className="mr-1"/> Premium
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            {!school.is_premium && <p className="text-xs text-gray-500 ml-1">* Webseiten-Links sind exklusiv für Premium-Partner.</p>}
                                         </div>
                                     </div>
 
@@ -383,20 +453,20 @@ function SidebarItem({ icon, label, active, onClick }: { icon: any, label: strin
 
 function StatCard({ title, value, subValue, icon, subColor }: { title: string, value: string, subValue?: string, icon: any, subColor?: string }) {
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow h-full flex flex-col justify-between">
             <div className="flex justify-between items-start mb-4">
                 <div className="p-2 bg-gray-50 rounded-lg">{icon}</div>
             </div>
-            <h3 className="text-gray-500 text-sm font-medium mb-1">{title}</h3>
-            <div className="flex flex-col">
-                <span className="text-2xl font-bold text-gray-900">{value}</span>
+            <div>
+                <h3 className="text-gray-500 text-sm font-medium mb-1">{title}</h3>
+                <span className="text-2xl font-bold text-gray-900 block">{value}</span>
                 {subValue && <span className={`text-xs font-medium mt-1 ${subColor || 'text-gray-500'}`}>{subValue}</span>}
             </div>
         </div>
     );
 }
 
-function InputGroup({ label, name, value, type = "text", placeholder, icon }: { label: string, name: string, value: any, type?: string, placeholder?: string, icon?: any }) {
+function InputGroup({ label, name, value, type = "text", placeholder, icon, disabled }: { label: string, name: string, value: any, type?: string, placeholder?: string, icon?: any, disabled?: boolean }) {
     return (
         <div className="space-y-1.5">
             <label className="text-sm font-medium text-gray-700 block">{label}</label>
@@ -409,9 +479,10 @@ function InputGroup({ label, name, value, type = "text", placeholder, icon }: { 
                 <input 
                     name={name} 
                     type={type} 
-                    defaultValue={value || ''} // WICHTIG: Zeigt Daten an oder leer, kein "graues Muster"
-                    placeholder={placeholder} 
-                    className={`w-full p-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${icon ? 'pl-10' : ''}`} 
+                    defaultValue={value || ''} 
+                    placeholder={placeholder}
+                    disabled={disabled}
+                    className={`w-full p-2.5 border border-gray-300 rounded-lg text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${icon ? 'pl-10' : ''} ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-70' : 'bg-white'}`} 
                 />
             </div>
         </div>

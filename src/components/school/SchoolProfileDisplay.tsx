@@ -2,9 +2,8 @@
 "use client";
 
 import Link from 'next/link';
-import { MapPin, Phone, Mail, Globe, CheckCircle2, Car, BookOpen, GraduationCap, Clock, Navigation, ArrowLeft } from 'lucide-react';
+import { MapPin, Phone, Mail, Globe, CheckCircle2, Car, BookOpen, GraduationCap, Clock, Navigation, ArrowLeft, Lock } from 'lucide-react';
 
-// Erweiterter Typ mit allen Feldern
 type School = {
     id: string;
     name: string;
@@ -30,10 +29,10 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
         return new Intl.NumberFormat("de-DE", {
             style: "currency",
             currency: "EUR",
+            maximumFractionDigits: 0,
         }).format(price);
     };
 
-    // Hilfsfunktion: URL bereinigen für Anzeige
     const displayUrl = (url: string) => url.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
 
     return (
@@ -52,14 +51,11 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
 
             {/* --- HEADER SECTION --- */}
             <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
-                {/* Banner Background */}
                 <div className="h-32 md:h-48 bg-gradient-to-r from-slate-800 to-blue-900 relative">
                     <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
                 </div>
                 
-                {/* School Info Header */}
                 <div className="px-6 md:px-10 pb-8 -mt-12 relative flex flex-col md:flex-row gap-6 items-start md:items-end">
-                    {/* Logo Placeholder */}
                     <div className="bg-white w-24 h-24 md:w-32 md:h-32 rounded-2xl shadow-xl flex items-center justify-center text-4xl md:text-5xl font-bold text-blue-700 border-4 border-white shrink-0">
                         {school.name.charAt(0)}
                     </div>
@@ -82,19 +78,25 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
                         </div>
                     </div>
 
-                    {/* Action Buttons */}
+                    {/* Action Buttons (LOCKED wenn kein Premium) */}
                     <div className="flex gap-3 w-full md:w-auto">
-                        {school.phone_number && (
-                            <a href={`tel:${school.phone_number}`} className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
-                                <Phone size={18} />
-                                Anrufen
-                            </a>
-                        )}
-                        {school.website && (
-                            <a href={school.website.startsWith('http') ? school.website : `https://${school.website}`} target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
-                                <Globe size={18} />
-                                Webseite
-                            </a>
+                        {school.is_premium ? (
+                            <>
+                                {school.phone_number && (
+                                    <a href={`tel:${school.phone_number}`} className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                                        <Phone size={18} /> Anrufen
+                                    </a>
+                                )}
+                                {school.website && (
+                                    <a href={school.website.startsWith('http') ? school.website : `https://${school.website}`} target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                                        <Globe size={18} /> Webseite
+                                    </a>
+                                )}
+                            </>
+                        ) : (
+                            <button disabled className="flex-1 md:flex-none bg-gray-100 text-gray-400 px-6 py-3 rounded-xl font-semibold border border-gray-200 flex items-center justify-center gap-2 cursor-not-allowed">
+                                <Lock size={18} /> Kontakt gesperrt
+                            </button>
                         )}
                     </div>
                 </div>
@@ -103,54 +105,65 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
             {/* --- MAIN CONTENT GRID --- */}
             <div className="grid md:grid-cols-3 gap-8">
                 
-                {/* LEFT COLUMN: CONTACT & INFO */}
+                {/* LEFT COLUMN: CONTACT (LOCKED) */}
                 <div className="md:col-span-1 space-y-6">
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
                         <h3 className="text-lg font-bold text-gray-900 mb-6 border-b pb-4 flex items-center gap-2">
                             <Navigation size={20} className="text-blue-600" /> Kontakt
                         </h3>
                         
-                        <div className="space-y-5">
+                        {/* Premium Wall Overlay */}
+                        {!school.is_premium && (
+                            <div className="absolute inset-0 top-16 bg-white/40 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-center p-4">
+                                <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100">
+                                    <Lock className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                    <p className="text-sm font-semibold text-gray-600">Kontaktdaten nur für Premium</p>
+                                </div>
+                            </div>
+                        )}
+
+                        <div className={`space-y-5 ${!school.is_premium ? 'filter blur-[3px] select-none opacity-50' : ''}`}>
                             <ContactItem 
                                 icon={<Phone size={18} />} 
                                 label="Telefon" 
-                                value={school.phone_number} 
-                                href={`tel:${school.phone_number}`}
-                                fallback="Keine Nummer angegeben"
+                                value={school.phone_number || "0123 456789"} 
+                                href={school.is_premium ? `tel:${school.phone_number}` : undefined}
                             />
                             <ContactItem 
                                 icon={<Mail size={18} />} 
                                 label="E-Mail" 
-                                value={school.email} 
-                                href={`mailto:${school.email}`}
-                                fallback="Keine E-Mail angegeben"
+                                value={school.email || "kontakt@fahrschule.de"} 
+                                href={school.is_premium ? `mailto:${school.email}` : undefined}
                             />
                             <ContactItem 
                                 icon={<Globe size={18} />} 
                                 label="Webseite" 
-                                value={school.website ? displayUrl(school.website) : null} 
-                                href={school.website}
+                                value={school.website ? displayUrl(school.website) : "www.fahrschule.de"} 
+                                href={school.is_premium ? school.website : undefined}
                                 isLink
-                                fallback="Keine Webseite"
                             />
                         </div>
                     </div>
 
-                    {/* CTA Box */}
+                    {/* CTA Box (Deaktiviert für Standard) */}
                     <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100">
                         <h4 className="font-bold text-blue-900 mb-2">Interesse geweckt?</h4>
                         <p className="text-sm text-blue-700/80 mb-4">
                             Melde dich jetzt an oder vereinbare eine unverbindliche Beratung.
                         </p>
-                        {school.email && (
+                        {school.is_premium ? (
                             <a href={`mailto:${school.email}?subject=Anfrage über Fahrschulfinder`} className="block w-full bg-white hover:bg-blue-50 text-blue-600 font-bold text-center py-2.5 rounded-lg border border-blue-200 transition-colors shadow-sm">
                                 Nachricht senden
                             </a>
+                        ) : (
+                            <button disabled className="block w-full bg-gray-100 text-gray-400 font-bold text-center py-2.5 rounded-lg border border-gray-200 cursor-not-allowed flex items-center justify-center gap-2">
+                                <Lock size={16} /> Direktnachricht
+                            </button>
                         )}
                     </div>
                 </div>
 
-                {/* RIGHT COLUMN: PRICING */}
+                {/* RIGHT COLUMN: PRICING (IMMER SICHTBAR) */}
                 <div className="md:col-span-2">
                     <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 h-full">
                         <div className="flex items-center gap-4 mb-8">
@@ -164,42 +177,15 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
                         </div>
 
                         <div className="grid sm:grid-cols-2 gap-4 mb-8">
-                            <PriceCard 
-                                title="Fahrstunde" 
-                                subtitle="pro 45 Minuten" 
-                                price={school.driving_price} 
-                                icon={<Car size={20} />} 
-                                color="blue"
-                            />
-                            <PriceCard 
-                                title="Grundgebühr" 
-                                subtitle="einmalig" 
-                                price={school.grundgebuehr} 
-                                icon={<BookOpen size={20} />} 
-                                color="purple"
-                            />
-                            <PriceCard 
-                                title="Theorieprüfung" 
-                                subtitle="Vorstellung zur Prüfung" 
-                                price={school.theorypruefung} 
-                                icon={<GraduationCap size={20} />} 
-                                color="orange"
-                            />
-                            <PriceCard 
-                                title="Praxisprüfung" 
-                                subtitle="Vorstellung zur Prüfung" 
-                                price={school.praxispruefung} 
-                                icon={<CheckCircle2 size={20} />} 
-                                color="green"
-                            />
+                            <PriceCard title="Fahrstunde" subtitle="pro 45 Minuten" price={school.driving_price} icon={<Car size={20} />} color="blue" />
+                            <PriceCard title="Grundgebühr" subtitle="einmalig" price={school.grundgebuehr} icon={<BookOpen size={20} />} color="purple" />
+                            <PriceCard title="Theorieprüfung" subtitle="Vorstellung zur Prüfung" price={school.theorypruefung} icon={<GraduationCap size={20} />} color="orange" />
+                            <PriceCard title="Praxisprüfung" subtitle="Vorstellung zur Prüfung" price={school.praxispruefung} icon={<CheckCircle2 size={20} />} color="green" />
                         </div>
 
                         <div className="flex gap-4 p-4 bg-gray-50 rounded-xl border border-gray-100 text-sm text-gray-600">
                             <Clock className="shrink-0 text-gray-400 mt-0.5" size={18} />
-                            <p>
-                                <strong>Hinweis:</strong> Die Gesamtkosten hängen von der Anzahl der benötigten Fahrstunden ab. 
-                                Zusätzlich fallen Kosten für Lehrmaterial, Sehtest, Erste-Hilfe-Kurs sowie Gebühren beim TÜV und Straßenverkehrsamt an.
-                            </p>
+                            <p><strong>Hinweis:</strong> Die Gesamtkosten hängen von der Anzahl der benötigten Fahrstunden ab.</p>
                         </div>
                     </div>
                 </div>
@@ -210,27 +196,13 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
 
 // --- Sub-Components ---
 
-function ContactItem({ icon, label, value, href, isLink, fallback }: any) {
-    if (!value) {
-        return (
-            <div className="flex items-start gap-4 opacity-50">
-                <div className="bg-gray-100 p-2.5 rounded-xl text-gray-500">{icon}</div>
-                <div>
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">{label}</p>
-                    <p className="text-gray-500 text-sm italic">{fallback}</p>
-                </div>
-            </div>
-        );
-    }
-
+function ContactItem({ icon, label, value, href, isLink }: any) {
     const content = (
         <div className="flex items-start gap-4 group">
-            <div className="bg-blue-50 p-2.5 rounded-xl text-blue-600 group-hover:bg-blue-100 transition-colors">{icon}</div>
+            <div className="bg-blue-50 p-2.5 rounded-xl text-blue-600">{icon}</div>
             <div>
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-0.5">{label}</p>
-                <p className="text-gray-900 font-medium group-hover:text-blue-700 transition-colors break-all">
-                    {value}
-                </p>
+                <p className="text-gray-900 font-medium break-all">{value}</p>
             </div>
         </div>
     );
@@ -241,13 +213,12 @@ function ContactItem({ icon, label, value, href, isLink, fallback }: any) {
                 href={isLink && !href.startsWith('http') ? `https://${href}` : href} 
                 target={isLink ? "_blank" : undefined} 
                 rel={isLink ? "noopener noreferrer" : undefined}
-                className="block"
+                className="block hover:opacity-75 transition-opacity"
             >
                 {content}
             </a>
         );
     }
-
     return content;
 }
 
@@ -258,26 +229,20 @@ function PriceCard({ title, subtitle, price, icon, color }: any) {
         orange: "bg-orange-50 text-orange-600 border-orange-100",
         green: "bg-green-50 text-green-600 border-green-100",
     };
-    
-    // Fallback falls Farbe nicht existiert
     const style = colors[color as keyof typeof colors] || colors.blue;
 
     return (
-        <div className={`p-5 rounded-2xl border ${style.split(' ')[2]} bg-white hover:shadow-md transition-all group flex justify-between items-center`}>
+        <div className={`p-5 rounded-2xl border ${style.split(' ')[2]} bg-white flex justify-between items-center`}>
             <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-xl ${style}`}>
-                    {icon}
-                </div>
+                <div className={`p-3 rounded-xl ${style}`}>{icon}</div>
                 <div>
-                    <p className="font-bold text-gray-900 group-hover:text-blue-700 transition-colors">{title}</p>
+                    <p className="font-bold text-gray-900">{title}</p>
                     <p className="text-xs text-gray-500">{subtitle}</p>
                 </div>
             </div>
-            <div className="text-right">
-                <span className="block text-xl font-bold text-gray-900">
-                    {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(price)}
-                </span>
-            </div>
+            <span className="text-xl font-bold text-gray-900">
+                {new Intl.NumberFormat("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(price)}
+            </span>
         </div>
     );
 }

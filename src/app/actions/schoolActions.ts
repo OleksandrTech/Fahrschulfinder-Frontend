@@ -12,25 +12,41 @@ export async function updateSchoolSettings(formData: FormData) {
         throw new Error("Nicht autorisiert.");
     }
 
+    // 1. Prüfen, ob die Schule Premium ist
+    const { data: schoolData } = await supabase
+        .from('driving_school')
+        .select('is_premium')
+        .eq('admin_id', user.id)
+        .single();
+
+    const isPremium = schoolData?.is_premium || false;
+
+    // 2. Daten aus Formular holen
     const phoneNumber = formData.get("phoneNumber") as string;
     const email = formData.get("email") as string;
-    const website = formData.get("website") as string;
+    const website = formData.get("website") as string; // Wird nur bei Premium gespeichert
     
-    // Optional: Auch Adresse updatebar machen
     const address = formData.get("address") as string;
     const plz = formData.get("plz") as string;
     const city = formData.get("city") as string;
 
+    // 3. Update-Objekt bauen
+    const updates: any = {
+        phone_number: phoneNumber,
+        email: email,
+        address: address,
+        PLZ: plz,
+        city: city
+    };
+
+    // NUR WENN PREMIUM: Webseite speichern
+    if (isPremium) {
+        updates.website = website;
+    }
+
     const { error } = await supabase
         .from("driving_school")
-        .update({
-            phone_number: phoneNumber,
-            email: email, // Die öffentliche Kontakt-Email
-            website: website,
-            address: address,
-            PLZ: plz,
-            city: city
-        })
+        .update(updates)
         .eq("admin_id", user.id);
 
     if (error) {
@@ -41,6 +57,8 @@ export async function updateSchoolSettings(formData: FormData) {
     revalidatePath("/profile");
     return { success: true, message: "Einstellungen erfolgreich gespeichert!" };
 }
+
+// ... (Rest der Datei: getUniqueCities, getSchoolsByCity, etc. unverändert lassen)
 export async function getUniqueCities() {
     const supabase = await createClient();
     const { data, error } = await supabase
@@ -65,7 +83,7 @@ export async function getSchoolsByCity(city: string) {
     const { data, error } = await supabase
         .from("driving_school")
         .select(
-            "id, name, address, driving_price, grundgebuehr, theorypruefung, praxispruefung"
+            "id, name, address, driving_price, grundgebuehr, theorypruefung, praxispruefung, is_premium"
         )
         .eq("city", city)
         .eq("is_published", true);
@@ -77,24 +95,22 @@ export async function getSchoolsByCity(city: string) {
     return data || [];
 }
 
-// New function to fetch a single school by its ID
 export async function getSchoolById(id: string) {
     const supabase = await createClient();
     const { data, error } = await supabase
         .from('driving_school')
-        .select('*') // Select all columns for the profile page
+        .select('*')
         .eq('id', id)
         .eq("is_published", true)
-        .single(); // .single() ensures only one row is returned
+        .single();
 
     if (error) {
         console.error(`Error fetching school with id ${id}:`, error);
-        return null; // Return null if there's an error or no school is found
+        return null;
     }
 
     return data;
 }
-
 
 export async function updateSchoolPrices(formData: FormData) {
     const supabase = await createClient();
@@ -137,10 +153,10 @@ export async function updateSchoolPrices(formData: FormData) {
     revalidatePath("/profile");
     return { success: true, message: "Prices updated successfully!" };
 }
+
 export async function getSchoolStatistics(city: string, schoolId: string) {
     const supabase = await createClient();
     
-    // 1. Alle Fahrschulen in derselben Stadt holen (nur die veröffentlichten)
     const { data: schools, error } = await supabase
         .from('driving_school')
         .select('id, driving_price, grundgebuehr')
@@ -151,21 +167,15 @@ export async function getSchoolStatistics(city: string, schoolId: string) {
         return null;
     }
 
-    // 2. Berechnungen durchführen
     const totalSchools = schools.length;
     
-    // Durchschnittspreis Fahrstunde
     const totalDrivingPrice = schools.reduce((acc, curr) => acc + (curr.driving_price || 0), 0);
     const avgDrivingPrice = Math.round(totalDrivingPrice / totalSchools);
 
-    // Durchschnittspreis Grundgebühr
     const totalGrund = schools.reduce((acc, curr) => acc + (curr.grundgebuehr || 0), 0);
     const avgGrundgebuehr = Math.round(totalGrund / totalSchools);
 
-    // Ranking (Günstigste Fahrstunde ist Platz 1)
-    // Wir sortieren die Schulen nach Preis aufsteigend
     const sortedByPrice = [...schools].sort((a, b) => a.driving_price - b.driving_price);
-    // Wir finden den Index unserer eigenen Schule (+1 für "Platz 1" statt "Index 0")
     const rankIndex = sortedByPrice.findIndex(s => s.id === schoolId);
     const cityRank = rankIndex !== -1 ? rankIndex + 1 : totalSchools;
 
