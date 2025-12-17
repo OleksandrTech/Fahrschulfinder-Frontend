@@ -1,6 +1,9 @@
+// src/app/profile/page.tsx
 import { createClient } from '@/utils/supabase/server';
 import { redirect } from 'next/navigation';
 import ProfileClient from '@/app/profile/ProfileClient';
+// WICHTIG: Dieser Import muss da sein!
+import { getAnalyticsStats } from '@/app/actions/analyticsActions'; 
 
 export default async function ProfilePage() {
     const supabase = await createClient();
@@ -10,7 +13,6 @@ export default async function ProfilePage() {
     if (!user) redirect('/login');
 
     // 2. ALLE Daten abrufen
-    // WICHTIG: Hier fehlten vorher die neuen Felder, deshalb wurden sie nicht angezeigt!
     const { data: school, error } = await supabase
         .from('driving_school')
         .select(`
@@ -33,7 +35,7 @@ export default async function ProfilePage() {
 
     if (error || !school) return <div className="p-8 text-center">Keine Daten gefunden.</div>;
 
-    // 3. Statistiken (unverändert)
+    // 3. Markt-Statistiken abrufen
     let stats = null;
     if (school.city) {
         const { data: citySchools } = await supabase
@@ -51,9 +53,13 @@ export default async function ProfilePage() {
         }
     }
 
+    // 4. NEU: Analytics Daten abrufen
+    const analytics = await getAnalyticsStats(school.id);
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-gray-50">
-            <ProfileClient school={school} stats={stats} />
+            {/* WICHTIG: Hier muss 'analytics={analytics}' stehen! */}
+            <ProfileClient school={school} stats={stats} analytics={analytics} />
         </div>
     );
 }

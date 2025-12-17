@@ -197,7 +197,7 @@ export default function ProfileClient({ school, stats }: { school: SchoolData, s
                                     <h4 className="font-semibold text-blue-900 text-sm">Sichtbarkeit deiner Kontaktdaten</h4>
                                     <p className="text-blue-700/80 text-sm mt-1">
                                         Im öffentlichen Vergleich werden <strong>keine Kontaktdaten</strong> angezeigt (außer bei Premium). 
-                                        Schüler sehen diese erst auf deinem Detail-Profil.
+                                        Die visibilität deiner Fahrschule wird eingeschränkt.
                                     </p>
                                 </div>
                             </div>
