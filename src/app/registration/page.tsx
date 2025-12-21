@@ -6,7 +6,8 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter } from 'next/navigation';
 import { CheckCircle2, Eye, EyeOff, MapPin, AlertCircle, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
-import { getUniqueCities } from '@/app/actions/schoolActions';
+// HIER: Import der neuen Liste statt der Datenbank-Funktion
+import { BERGISCHES_LAND_CITIES } from '@/lib/cities';
 
 export default function Register() {
     const supabase = createClient();
@@ -30,7 +31,9 @@ export default function Register() {
         drivingPrice: '',
     });
 
-    const [availableCities, setAvailableCities] = useState<string[]>([]);
+    // Wir initialisieren availableCities direkt mit der Konstante
+    const [availableCities] = useState<string[]>(BERGISCHES_LAND_CITIES);
+    
     const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
     const [showCitySuggestions, setShowCitySuggestions] = useState(false);
     
@@ -42,17 +45,8 @@ export default function Register() {
 
     const suggestionsRef = useRef<HTMLUListElement>(null);
 
+    // useEffect für Klicks außerhalb der Liste
     useEffect(() => {
-        async function loadCities() {
-            try {
-                const cities = await getUniqueCities();
-                setAvailableCities(cities);
-            } catch (err) {
-                console.error("Fehler beim Laden der Städte:", err);
-            }
-        }
-        loadCities();
-
         function handleClickOutside(event: MouseEvent) {
             if (suggestionsRef.current && !suggestionsRef.current.contains(event.target as Node)) {
                 setShowCitySuggestions(false);
@@ -100,65 +94,43 @@ export default function Register() {
             return;
         }
 
+        // Prüfen, ob die Stadt in der Liste ist
         const cityExists = availableCities.some(
             c => c.toLowerCase() === formData.city.trim().toLowerCase()
         );
 
         if (!cityExists) {
-            setError("Bitte wählen Sie eine Stadt aus der Vorschlagsliste. Wir sind derzeit nur in ausgewählten Städten verfügbar.");
+            setError("Bitte wählen Sie eine Stadt aus der Vorschlagsliste. Wir sind derzeit nur im Bergischen Land verfügbar.");
             return;
         }
 
         setError(null);
         setLoading(true);
 
+        // Daten an Supabase senden (Trigger übernimmt den Rest)
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email: formData.email,
             password: formData.password,
+            options: {
+                data: {
+                    full_name: formData.fullName,
+                    school_name: formData.schoolName,
+                    address: formData.address,
+                    city: availableCities.find(c => c.toLowerCase() === formData.city.trim().toLowerCase()) || formData.city,
+                    plz: formData.plz,
+                    phone_number: formData.phoneNumber,
+                    school_email: formData.schoolEmail,
+                    website: formData.website,
+                    driving_price: Number(formData.drivingPrice),
+                    grundgebuehr: Number(formData.grundGebuehr),
+                    theory_price: Number(formData.theoryPruefung),
+                    praxis_price: Number(formData.praxisPruefung),
+                }
+            }
         });
 
-        if (authError || !authData.user) {
-            setError(authError?.message || "Fehler bei der Registrierung.");
-            setLoading(false);
-            return;
-        }
-
-        const { data: admin, error: adminError } = await supabase
-            .from('driving_school_admin')
-            .insert({
-                id: authData.user.id,
-                full_name: formData.fullName,
-            })
-            .select()
-            .single();
-
-        if (adminError || !admin) {
-            setError(adminError?.message || "Admin Profil konnte nicht erstellt werden.");
-            setLoading(false);
-            return;
-        }
-
-        const schoolData = {
-            name: formData.schoolName,
-            address: formData.address,
-            city: availableCities.find(c => c.toLowerCase() === formData.city.trim().toLowerCase()) || formData.city,
-            PLZ: formData.plz,
-            phone_number: formData.phoneNumber,
-            email: formData.schoolEmail,
-            website: formData.website,
-            driving_price: Number(formData.drivingPrice),
-            grundgebuehr: Number(formData.grundGebuehr),
-            theorypruefung: Number(formData.theoryPruefung),
-            praxispruefung: Number(formData.praxisPruefung),
-            admin_id: admin.id,
-        };
-
-        const { error: schoolError } = await supabase
-            .from('driving_school')
-            .insert(schoolData as any);
-
-        if (schoolError) {
-            setError(schoolError.message);
+        if (authError) {
+            setError(authError.message);
             setLoading(false);
             return;
         }
@@ -175,8 +147,6 @@ export default function Register() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen py-8 bg-gray-50 relative">
-            
-            {/* --- ZURÜCK BUTTON --- */}
             <Link 
                 href="/" 
                 className="absolute top-6 left-6 md:top-8 md:left-8 flex items-center text-gray-500 hover:text-blue-600 transition-colors font-medium"

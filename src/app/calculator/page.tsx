@@ -1,11 +1,12 @@
-// src/app/calculator/page.tsx
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { getUniqueCities } from "@/app/actions/schoolActions";
+// import { getUniqueCities } from "@/app/actions/schoolActions"; <--- Nicht mehr benötigt
 import CalculatorClient from "@/components/calculator/CalculatorClient";
+import { BERGISCHES_LAND_CITIES } from "@/lib/cities"; // <--- Import
 
 export default async function CalculatorPage() {
-    const cities = await getUniqueCities();
+    // Statt DB-Abruf nutzen wir die feste Liste
+    const cities = BERGISCHES_LAND_CITIES;
 
     return (
         <div className="min-h-screen bg-gray-50 flex flex-col">

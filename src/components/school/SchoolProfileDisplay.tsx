@@ -3,6 +3,7 @@
 
 import Link from 'next/link';
 import { MapPin, Phone, Mail, Globe, CheckCircle2, Car, BookOpen, GraduationCap, Clock, Navigation, ArrowLeft, Lock } from 'lucide-react';
+import { trackEvent } from '@/app/actions/analyticsActions'; // <--- Import
 
 type School = {
     id: string;
@@ -25,6 +26,13 @@ interface SchoolProfileDisplayProps {
 }
 
 export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayProps) {
+    
+    // --- Helper für Tracking ---
+    const handleTrack = (type: 'website_click' | 'phone_click' | 'email_click') => {
+        // "Fire and forget" - wir warten nicht auf das Ergebnis, damit der Link sofort öffnet
+        trackEvent(school.id, type);
+    };
+
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat("de-DE", {
             style: "currency",
@@ -78,17 +86,27 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
                         </div>
                     </div>
 
-                    {/* Action Buttons (LOCKED wenn kein Premium) */}
+                    {/* Action Buttons (HEADER) */}
                     <div className="flex gap-3 w-full md:w-auto">
                         {school.is_premium ? (
                             <>
                                 {school.phone_number && (
-                                    <a href={`tel:${school.phone_number}`} className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                                    <a 
+                                        href={`tel:${school.phone_number}`} 
+                                        onClick={() => handleTrack('phone_click')}
+                                        className="flex-1 md:flex-none bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2"
+                                    >
                                         <Phone size={18} /> Anrufen
                                     </a>
                                 )}
                                 {school.website && (
-                                    <a href={school.website.startsWith('http') ? school.website : `https://${school.website}`} target="_blank" rel="noopener noreferrer" className="flex-1 md:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2">
+                                    <a 
+                                        href={school.website.startsWith('http') ? school.website : `https://${school.website}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer" 
+                                        onClick={() => handleTrack('website_click')}
+                                        className="flex-1 md:flex-none bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 px-6 py-3 rounded-xl font-semibold transition-all shadow-sm hover:shadow-md flex items-center justify-center gap-2"
+                                    >
                                         <Globe size={18} /> Webseite
                                     </a>
                                 )}
@@ -112,7 +130,6 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
                             <Navigation size={20} className="text-blue-600" /> Kontakt
                         </h3>
                         
-                        {/* Premium Wall Overlay */}
                         {!school.is_premium && (
                             <div className="absolute inset-0 top-16 bg-white/40 backdrop-blur-sm z-10 flex flex-col items-center justify-center text-center p-4">
                                 <div className="bg-white p-4 rounded-xl shadow-lg border border-gray-100">
@@ -128,12 +145,14 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
                                 label="Telefon" 
                                 value={school.phone_number || "0123 456789"} 
                                 href={school.is_premium ? `tel:${school.phone_number}` : undefined}
+                                onClick={() => handleTrack('phone_click')}
                             />
                             <ContactItem 
                                 icon={<Mail size={18} />} 
                                 label="E-Mail" 
                                 value={school.email || "kontakt@fahrschule.de"} 
                                 href={school.is_premium ? `mailto:${school.email}` : undefined}
+                                onClick={() => handleTrack('email_click')}
                             />
                             <ContactItem 
                                 icon={<Globe size={18} />} 
@@ -141,6 +160,7 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
                                 value={school.website ? displayUrl(school.website) : "www.fahrschule.de"} 
                                 href={school.is_premium ? school.website : undefined}
                                 isLink
+                                onClick={() => handleTrack('website_click')}
                             />
                         </div>
                     </div>
@@ -152,7 +172,11 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
                             Melde dich jetzt an oder vereinbare eine unverbindliche Beratung.
                         </p>
                         {school.is_premium ? (
-                            <a href={`mailto:${school.email}?subject=Anfrage über Fahrschulfinder`} className="block w-full bg-white hover:bg-blue-50 text-blue-600 font-bold text-center py-2.5 rounded-lg border border-blue-200 transition-colors shadow-sm">
+                            <a 
+                                href={`mailto:${school.email}?subject=Anfrage über Fahrschulfinder`} 
+                                onClick={() => handleTrack('email_click')}
+                                className="block w-full bg-white hover:bg-blue-50 text-blue-600 font-bold text-center py-2.5 rounded-lg border border-blue-200 transition-colors shadow-sm"
+                            >
                                 Nachricht senden
                             </a>
                         ) : (
@@ -196,7 +220,7 @@ export default function SchoolProfileDisplay({ school }: SchoolProfileDisplayPro
 
 // --- Sub-Components ---
 
-function ContactItem({ icon, label, value, href, isLink }: any) {
+function ContactItem({ icon, label, value, href, isLink, onClick }: any) {
     const content = (
         <div className="flex items-start gap-4 group">
             <div className="bg-blue-50 p-2.5 rounded-xl text-blue-600">{icon}</div>
@@ -213,6 +237,7 @@ function ContactItem({ icon, label, value, href, isLink }: any) {
                 href={isLink && !href.startsWith('http') ? `https://${href}` : href} 
                 target={isLink ? "_blank" : undefined} 
                 rel={isLink ? "noopener noreferrer" : undefined}
+                onClick={onClick}
                 className="block hover:opacity-75 transition-opacity"
             >
                 {content}

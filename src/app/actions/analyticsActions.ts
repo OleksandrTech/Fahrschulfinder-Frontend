@@ -3,17 +3,25 @@
 
 import { createClient } from "@/utils/supabase/server";
 
-// 1. Event speichern (Aufruf oder Klick)
 export async function trackEvent(schoolId: string, eventType: 'view' | 'website_click' | 'phone_click' | 'email_click') {
-    const supabase = await createClient();
-    
-    await supabase.from('analytics').insert({
-        school_id: schoolId,
-        event_type: eventType
-    });
+    try {
+        const supabase = await createClient();
+        
+        const { error } = await supabase.from('analytics').insert({
+            school_id: schoolId,
+            event_type: eventType
+        });
+
+        if (error) {
+            console.error(`[Analytics Error] Failed to track ${eventType}:`, error.message);
+        } else {
+            console.log(`[Analytics Success] ${eventType} tracked for school ${schoolId}`);
+        }
+    } catch (err) {
+        console.error("[Analytics Exception]", err);
+    }
 }
 
-// 2. Statistik abrufen (für das Dashboard)
 export async function getAnalyticsStats(schoolId: string) {
     const supabase = await createClient();
 
@@ -28,17 +36,14 @@ export async function getAnalyticsStats(schoolId: string) {
         .gte('created_at', thirtyDaysAgo.toISOString());
 
     if (error || !data) {
-        // Falls Fehler oder keine Daten, Nullen zurückgeben, damit nichts abstürzt
-        return {
-            views: 0,
-            websiteClicks: 0,
-            contactClicks: 0
-        };
+        console.error("[Analytics Stats Error]", error);
+        return { views: 0, websiteClicks: 0, contactClicks: 0 };
     }
 
     // Zählen
     const views = data.filter(e => e.event_type === 'view').length;
     const websiteClicks = data.filter(e => e.event_type === 'website_click').length;
+    // Hier korrigierte Logik:
     const contactClicks = data.filter(e => e.event_type === 'phone_click' || e.event_type === 'email_click').length;
 
     return {
